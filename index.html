@@ -380,6 +380,27 @@ function saveCheck(id, val) {
     .catch(() => {});
 })();
 
+/* 頁面載入時同步「必需項清單」到雲端(內容沒變時不重送) */
+(function syncTaskCatalog() {
+  const tasks = [];
+  WEEKS.forEach(w => (w.must || []).forEach(task => {
+    const pt = parseTask(task);
+    tasks.push({ id: `w${w.n}-must-${pt.key}`, text: pt.text });
+  }));
+  const payload = JSON.stringify({ type: "syncTasks", tasks: tasks });
+  try {
+    if (localStorage.getItem(LS_PREFIX + "taskCatalog") === payload) return;
+  } catch (e) {}
+  fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: payload
+  })
+    .then(r => r.json())
+    .then(() => { try { localStorage.setItem(LS_PREFIX + "taskCatalog", payload); } catch (e) {} })
+    .catch(() => {});
+})();
+ 
 /* ── 建表 ── */
 (function buildPlan() {
   const container = document.getElementById("plan");

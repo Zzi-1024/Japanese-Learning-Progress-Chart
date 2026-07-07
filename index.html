@@ -383,10 +383,10 @@ function saveCheck(id, val) {
 /* 頁面載入時同步「必需項清單」到雲端(內容沒變時不重送) */
 (function syncTaskCatalog() {
   const tasks = [];
-  WEEKS.forEach(w => (w.must || []).forEach(task => {
+  WEEKS.forEach(w => TIERS.forEach(t => (w[t.key] || []).forEach(task => {
     const pt = parseTask(task);
-    tasks.push({ id: `w${w.n}-must-${pt.key}`, text: pt.text });
-  }));
+    tasks.push({ id: `w${w.n}-${t.key}-${pt.key}`, tier: t.key, text: pt.text });
+  })));
   const payload = JSON.stringify({ type: "syncTasks", tasks: tasks });
   try {
     if (localStorage.getItem(LS_PREFIX + "taskCatalog") === payload) return;

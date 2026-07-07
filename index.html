@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N2 學習進度規劃（2026/7/6 → 12/6）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --color-bg: #f5f5f3;
+    --color-surface: #ffffff;
+    --color-border: #e0e0e0;
+    --color-border-light: #ececea;
+    --color-text: #1a1a1a;
+    --color-text-secondary: #666;
+    --color-text-tertiary: #888;
+    --color-hover: #f9f9f7;
+
+    /* 階段色（低彩度，僅用於徽章與時間軸） */
+    --phase0: #8a9bb0;  /* 休息期 */
+    --phase1: #6f9e7f;  /* N4 鞏固 */
+    --phase2: #b0925c;  /* N3 速攻 */
+    --phase3: #a2718c;  /* N2 主攻 */
+    --phase4: #b06a5c;  /* 衝刺 */
+
+    --tier-must: #c2554a;
+    --tier-should: #b0925c;
+    --tier-bonus: #6f9e7f;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.55;
+  }
+
+  #wrap { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.3rem; }
+  .subtitle { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+
+  /* ── 重要日期卡 ── */
+  .keydates {
+    display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
+  }
+  .keydate {
+    background: var(--color-surface);
+    border: 0.5px solid var(--color-border);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    font-size: 12.5px;
+    flex: 1 1 200px;
+  }
+  .keydate b { display: block; font-size: 13px; margin-bottom: 2px; }
+  .keydate span { color: var(--color-text-secondary); }
+
+  /* ── 階段時間軸 ── */
+  .timeline-card {
+    background: var(--color-surface);
+    border: 0.5px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .timeline-title { font-size: 13px; font-weight: 600; margin-bottom: 0.75rem; }
+  #timeline {
+    display: flex; gap: 2px; height: 26px; border-radius: 6px; overflow: hidden;
+    position: relative;
+  }
+  .tl-seg {
+    flex: 1; opacity: 0.75; position: relative; cursor: default;
+  }
+  .tl-seg.today { outline: 2px solid var(--color-text); outline-offset: -2px; opacity: 1; z-index: 2; }
+  .tl-seg:hover::after {
+    content: attr(data-label);
+    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+    background: var(--color-text); color: #fff; font-size: 11px;
+    padding: 3px 8px; border-radius: 5px; white-space: nowrap; z-index: 5;
+  }
+  .tl-legend { display: flex; flex-wrap: wrap; gap: 0.9rem; margin-top: 0.75rem; font-size: 12px; color: var(--color-text-secondary); }
+  .tl-legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+  /* ── 進度統計 ── */
+  #progress-bar-wrap { margin-top: 0.9rem; }
+  #progress-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  #progress-track { height: 8px; background: var(--color-border-light); border-radius: 4px; overflow: hidden; }
+  #progress-fill { height: 100%; width: 0%; background: var(--tier-must); border-radius: 4px; transition: width 0.3s; }
+
+  /* ── 說明卡 ── */
+  .note-card {
+    background: var(--color-surface);
+    border: 0.5px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+  .note-card b { color: var(--color-text); }
+  .note-card ul { margin: 0.4rem 0 0 1.2rem; }
+  .note-card li { margin-bottom: 0.25rem; }
+
+  /* ── 主表格 ── */
+  .phase-header {
+    margin: 2rem 0 0.75rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .phase-badge {
+    color: #fff; font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 6px;
+  }
+  .phase-range { font-size: 12.5px; color: var(--color-text-tertiary); }
+  .phase-goal { font-size: 12.5px; color: var(--color-text-secondary); margin: 0 0 0.75rem 2px; }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    background: var(--color-surface);
+    border: 0.5px solid var(--color-border);
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  thead th {
+    background: #fafaf8;
+    font-size: 11.5px; font-weight: 600; letter-spacing: 0.03em;
+    color: var(--color-text-tertiary);
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 0.5px solid var(--color-border);
+  }
+  th.col-week { width: 92px; }
+  th.col-must, th.col-should, th.col-bonus { width: 28%; }
+  th .tier-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: 1px; }
+
+  tbody td {
+    padding: 10px 10px 8px;
+    border-bottom: 0.5px solid var(--color-border-light);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--color-hover); }
+  tr.done-row { background: #f4f8f4; }
+  tr.done-row:hover { background: #eef5ee; }
+
+  .wk-num { font-weight: 600; font-size: 13px; }
+  .wk-date { font-size: 11.5px; color: var(--color-text-tertiary); margin-top: 1px; }
+  .wk-flag { display: inline-block; font-size: 10.5px; color: #fff; background: var(--tier-must); border-radius: 4px; padding: 1px 6px; margin-top: 4px; }
+
+  .task { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 6px; }
+  .task:last-child { margin-bottom: 0; }
+  .task input[type="checkbox"] {
+    margin-top: 3px; width: 14px; height: 14px; flex-shrink: 0;
+    accent-color: var(--color-text); cursor: pointer;
+  }
+  .task label { cursor: pointer; }
+  .task input:checked + label { color: var(--color-text-tertiary); text-decoration: line-through; }
+
+  footer { margin-top: 2rem; font-size: 12px; color: var(--color-text-tertiary); }
+
+  @media (max-width: 760px) {
+    table, thead, tbody, tr, td, th { display: block; }
+    thead { display: none; }
+    tbody tr { border-bottom: 6px solid var(--color-bg); padding: 4px 0; }
+    tbody td { border-bottom: 0.5px dashed var(--color-border-light); }
+    td[data-tier]::before {
+      content: attr(data-tier);
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--color-text-tertiary); margin-bottom: 4px;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>N2 學習進度規劃</h1>
+  <div class="subtitle">2026/7/6（一）～ 2026/12/6（日）・共 22 週・目標：12 月 JLPT N2 合格（90/180）</div>
+
+  <div class="keydates">
+    <div class="keydate"><b>8 月下旬</b><span>N4 成績公布 → 分析各科分數、診斷弱項</span></div>
+    <div class="keydate"><b>8 月底～9 月初</b><span>台灣 12 月場報名（LTTC）→ 開放即報，勿等成績</span></div>
+    <div class="keydate"><b>12/6（日）</b><span>JLPT N2 考試日</span></div>
+  </div>
+
+  <div class="timeline-card">
+    <div class="timeline-title">階段時間軸（滑鼠移到色塊可看週次，黑框為本週）</div>
+    <div id="timeline"></div>
+    <div class="tl-legend">
+      <span><i class="dot" style="background:var(--phase0)"></i>休息期</span>
+      <span><i class="dot" style="background:var(--phase1)"></i>N4 鞏固</span>
+      <span><i class="dot" style="background:var(--phase2)"></i>N3 速攻</span>
+      <span><i class="dot" style="background:var(--phase3)"></i>N2 主攻</span>
+      <span><i class="dot" style="background:var(--phase4)"></i>衝刺</span>
+    </div>
+    <div id="progress-bar-wrap">
+      <div id="progress-label"></div>
+      <div id="progress-track"><div id="progress-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="note-card">
+    <b>使用原則</b>
+    <ul>
+      <li><b>「至少必需」</b>是主線，沒完成時優先補完必需項，再往下一週推進；<b>「建議做到」</b>是把合格從「有機會」變「穩」的關鍵；<b>「做到超好」</b>是餘裕時的加分項，跳過不影響主線。</li>
+      <li>單字量為估計值（N3 約 1,800 字、N2 約 2,500 字），實際以你的單字書分量換算，維持「每週固定比例」的節奏即可。</li>
+      <li>聽力是明確弱項，從 N3 階段起改用<b>官方問題集音檔</b>為主，動畫與歌曲降為輔助。</li>
+      <li>勾選狀態會自動存在瀏覽器（localStorage），換電腦或清除瀏覽資料會歸零。</li>
+    </ul>
+  </div>
+
+  <div id="plan"></div>
+
+  <footer>單字書／文法書內容輸入電腦完成後，可依實際章節將各週分量改為具體頁數與課數，並搭配每週測驗與進度匯報。</footer>
+</div>
+
+<script>
+const PHASES = [
+  { id: 0, name: "休息期",   color: "var(--phase0)", range: "W1–W2（7/6–7/19）",   goal: "回收考試成本、讓動力自然回流。日文不消失即可，不設學習目標。" },
+  { id: 1, name: "N4 鞏固",  color: "var(--phase1)", range: "W3–W7（7/20–8/23）",  goal: "單字真正背熟、自他動詞配對內化、文法從「理解」推進到「能輸出」，把地基打實再往上蓋。" },
+  { id: 2, name: "N3 速攻",  color: "var(--phase2)", range: "W8–W13（8/24–10/4）", goal: "6 週走完 N3 單字與文法（每週各 1/6），聽力材料升級為官方音檔。N3 是 N2 的必經地基，不可跳過。" },
+  { id: 3, name: "N2 主攻",  color: "var(--phase3)", range: "W14–W19（10/5–11/15）", goal: "6 週走完 N2 單字與文法（每週各 1/6），完成約七至八成時開始接觸考古題。" },
+  { id: 4, name: "衝刺",     color: "var(--phase4)", range: "W20–W22（11/16–12/6）", goal: "考古題計時模擬＋錯題分析＋每日聽力。不碰新內容，把會的變穩。" },
+];
+
+const WEEKS = [
+  { n:1,  date:"7/6–7/12",  phase:0,
+    must:["完全休息也可以，唯一底線：多鄰國連勝不斷"],
+    should:["無壓力看動畫、聽日文歌（不查單字、不做筆記）"],
+    bonus:["NHK 簡明新聞讀 1～2 篇（純閱讀，不整理）"] },
+  { n:2,  date:"7/13–7/19", phase:0,
+    must:["多鄰國維持","動畫或歌曲維持日文接觸"],
+    should:["翻閱 N4 單字書，把不熟的單字做記號（只標記、不背誦）"],
+    bonus:["用已熟的文法寫 3～5 句簡單日記（練日文輸入法也算數）"] },
+  { n:3,  date:"7/20–7/26", phase:1,
+    must:["N4 單字書複習 1/4（以標記的不熟單字為主）","文法書剩餘一成開始讀"],
+    should:["整理自他動詞配對清單（開く／開ける 這類成對整理）","每天用當日複習的單字造 5 句"],
+    bonus:["NHK 簡明新聞每週 3 篇"] },
+  { n:4,  date:"7/27–8/2",  phase:1,
+    must:["N4 單字書複習 2/4","文法書剩餘部分讀完（100%）"],
+    should:["自他動詞配對開始背誦","造句輸出持續（每天 5 句）"],
+    bonus:["用本週文法寫短日記 3 篇"] },
+  { n:5,  date:"8/3–8/9",   phase:1,
+    must:["N4 單字書複習 3/4","從「理解但不熟」的文法中挑 10 個做輸出練習（每個造 3 句以上）"],
+    should:["動詞變化反射訓練：看到動詞直接變形，刻意跳過「先判斷類別」的中間步驟"],
+    bonus:["影子跟讀（動畫台詞或 NHK 簡明新聞音檔）每週 3 次、每次 10 分鐘"] },
+  { n:6,  date:"8/10–8/16", phase:1,
+    must:["N4 單字書複習 4/4（第二遍完成）","再挑 10 個不熟文法做輸出練習"],
+    should:["N3 文法書前 1～2 章預習"],
+    bonus:["做一回 N4 官方考古題驗收鞏固成果（不計時也可）"] },
+  { n:7,  date:"8/17–8/23", phase:1, flag:"確認報名日期",
+    must:["N4 總複習：標記單字三刷＋輸出練習過的文法重跑一遍","上 LTTC 網站確認 12 月場報名起訖日"],
+    should:["N3 文法書繼續預習（累計 3～4 章）"],
+    bonus:["N3 單字書翻閱＋標記不熟單字"] },
+  { n:8,  date:"8/24–8/30", phase:2, flag:"報名 N2！",
+    must:["12 月 N2 報名（開放即報，勿等成績）","N3 單字 1/6（約 300 字）","N3 文法 1/6"],
+    should:["收到 N4 成績後分析各科分數，寫下弱項清單"],
+    bonus:["依弱項清單，在之後每週固定排一個補強時段"] },
+  { n:9,  date:"8/31–9/6",  phase:2,
+    must:["N3 單字 2/6","N3 文法 2/6"],
+    should:["聽力升級：改用 N3 官方問題集音檔，每週 2 次"],
+    bonus:["用新學的 N3 文法造句（每個文法 2 句）"] },
+  { n:10, date:"9/7–9/13",  phase:2,
+    must:["N3 單字 3/6","N3 文法 3/6"],
+    should:["自他動詞持續累積（N3 新出現的成對整理）","聽力 2 次"],
+    bonus:["NHK 簡明新聞升級：嘗試讀一般版 NHK 新聞的「標題」"] },
+  { n:11, date:"9/14–9/20", phase:2,
+    must:["N3 單字 4/6","N3 文法 4/6"],
+    should:["漢字讀音專項：把 N3 單字中「看得懂但唸不出來」的挑出來集中練（中文母語者最大失分點）"],
+    bonus:["影子跟讀每週 3 次"] },
+  { n:12, date:"9/21–9/27", phase:2,
+    must:["N3 單字 5/6","N3 文法 5/6"],
+    should:["聽力增為每週 3 次"],
+    bonus:["做一回 N3 考古題（計時），感受一下級距"] },
+  { n:13, date:"9/28–10/4", phase:2,
+    must:["N3 單字 6/6 完成","N3 文法 6/6 完成","N3 標記單字＋不熟文法總複習"],
+    should:["N3 考古題或模試一回＋錯題分析"],
+    bonus:["錯題重做到全對"] },
+  { n:14, date:"10/5–10/11", phase:3,
+    must:["N2 單字 1/6（約 400 字）","N2 文法 1/6"],
+    should:["聽力材料升級為 N2 官方音檔，每週 2 次"],
+    bonus:["日記改用本週新學的 N2 文法來寫"] },
+  { n:15, date:"10/12–10/18", phase:3,
+    must:["N2 單字 2/6","N2 文法 2/6"],
+    should:["N2 漢字讀音專項（音讀多義字、特殊訓讀集中整理）"],
+    bonus:["影子跟讀改用 N2 聽力音檔"] },
+  { n:16, date:"10/19–10/25", phase:3,
+    must:["N2 單字 3/6","N2 文法 3/6"],
+    should:["讀解訓練開始：N2 長文每週 2 篇（計時閱讀）"],
+    bonus:["一般版 NHK 新聞短篇嘗試通讀"] },
+  { n:17, date:"10/26–11/1", phase:3,
+    must:["N2 單字 4/6","N2 文法 4/6"],
+    should:["聽力增為每週 3 次"],
+    bonus:["第一回 N2 官方考古題（進度約七成，符合 70–80% 開始模試的原則）"] },
+  { n:18, date:"11/2–11/8",  phase:3,
+    must:["N2 單字 5/6","N2 文法 5/6","N2 考古題第一回（若 W17 已做則做第二回）"],
+    should:["錯題完整分析：分類是單字、文法、讀解還是聽力失分"],
+    bonus:["寫下各科時間分配策略筆記（哪科先寫、每大題配幾分鐘）"] },
+  { n:19, date:"11/9–11/15", phase:3,
+    must:["N2 單字 6/6 完成","N2 文法 6/6 完成"],
+    should:["考古題再一回（計時）＋錯題分析"],
+    bonus:["依錯題分布，挑最弱的一科做專項補強"] },
+  { n:20, date:"11/16–11/22", phase:4,
+    must:["考古題一回完整計時模擬（照正式考試時段安排）","錯題完整分析＋歸檔"],
+    should:["聽力每天 30 分鐘（最大弱項，天天磨耳朵）"],
+    bonus:["N3＋N2 標記單字、不熟文法快速總複習一輪"] },
+  { n:21, date:"11/23–11/29", phase:4,
+    must:["考古題一回計時模擬","聽力每天維持"],
+    should:["錯題本總複習：只看錯過的題目"],
+    bonus:["語彙／文法擇一弱項做最後集中補強"] },
+  { n:22, date:"11/30–12/6", phase:4, flag:"12/6 考試",
+    must:["不碰任何新內容","錯題本與標記單字輕量翻閱","確認准考證上的考試時段，提前調整作息與交通路線","12/6 上場：當作實戰經驗，過了賺到"],
+    should:["聽力每天 15～20 分鐘輕量維持耳感"],
+    bonus:["考前一天完全放鬆，睡滿 8 小時"] },
+];
+
+const TIERS = [
+  { key:"must",   label:"至少必需做到", color:"var(--tier-must)" },
+  { key:"should", label:"建議做到",     color:"var(--tier-should)" },
+  { key:"bonus",  label:"做到的話超好", color:"var(--tier-bonus)" },
+];
+
+/* ── 判斷本週 ── */
+function currentWeekIndex() {
+  const start = new Date(2026, 6, 6); // 2026/7/6
+  const now = new Date();
+  const diff = Math.floor((now - start) / (7 * 24 * 3600 * 1000));
+  return (diff >= 0 && diff < WEEKS.length) ? diff : -1;
+}
+
+/* ── 時間軸 ── */
+(function buildTimeline() {
+  const tl = document.getElementById("timeline");
+  const cur = currentWeekIndex();
+  WEEKS.forEach((w, i) => {
+    const seg = document.createElement("div");
+    seg.className = "tl-seg" + (i === cur ? " today" : "");
+    seg.style.background = PHASES[w.phase].color;
+    seg.dataset.label = `W${w.n}・${w.date}・${PHASES[w.phase].name}`;
+    tl.appendChild(seg);
+  });
+})();
+
+/* ── localStorage ── */
+const LS_PREFIX = "n2plan2026-";
+function loadCheck(id) { return localStorage.getItem(LS_PREFIX + id) === "1"; }
+function saveCheck(id, val) {
+  try { localStorage.setItem(LS_PREFIX + id, val ? "1" : "0"); } catch (e) {}
+}
+
+/* ── 建表 ── */
+(function buildPlan() {
+  const container = document.getElementById("plan");
+  let phaseCursor = -1, tbody = null;
+
+  WEEKS.forEach(w => {
+    if (w.phase !== phaseCursor) {
+      phaseCursor = w.phase;
+      const p = PHASES[phaseCursor];
+
+      const header = document.createElement("div");
+      header.className = "phase-header";
+      header.innerHTML = `<span class="phase-badge" style="background:${p.color}">${p.name}</span><span class="phase-range">${p.range}</span>`;
+      container.appendChild(header);
+
+      const goal = document.createElement("div");
+      goal.className = "phase-goal";
+      goal.textContent = p.goal;
+      container.appendChild(goal);
+
+      const table = document.createElement("table");
+      table.innerHTML = `<thead><tr>
+        <th class="col-week">週次</th>
+        ${TIERS.map(t => `<th class="col-${t.key}"><span class="tier-dot" style="background:${t.color}"></span>${t.label}</th>`).join("")}
+      </tr></thead>`;
+      tbody = document.createElement("tbody");
+      table.appendChild(tbody);
+      container.appendChild(table);
+    }
+
+    const tr = document.createElement("tr");
+    tr.id = "row-w" + w.n;
+
+    const tdWeek = document.createElement("td");
+    tdWeek.innerHTML = `<div class="wk-num">W${w.n}</div><div class="wk-date">${w.date}</div>` +
+      (w.flag ? `<span class="wk-flag">${w.flag}</span>` : "");
+    tr.appendChild(tdWeek);
+
+    TIERS.forEach(t => {
+      const td = document.createElement("td");
+      td.dataset.tier = t.label;
+      (w[t.key] || []).forEach((task, idx) => {
+        const id = `w${w.n}-${t.key}-${idx}`;
+        const div = document.createElement("div");
+        div.className = "task";
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.id = id;
+        cb.checked = loadCheck(id);
+        cb.addEventListener("change", () => {
+          saveCheck(id, cb.checked);
+          refreshRow(w.n);
+          refreshProgress();
+        });
+        const label = document.createElement("label");
+        label.htmlFor = id;
+        label.textContent = task;
+        div.appendChild(cb);
+        div.appendChild(label);
+        td.appendChild(div);
+      });
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  WEEKS.forEach(w => refreshRow(w.n));
+  refreshProgress();
+})();
+
+/* ── 每週必需項全勾 → 整列變綠 ── */
+function refreshRow(n) {
+  const w = WEEKS.find(x => x.n === n);
+  const allMust = w.must.every((_, idx) => loadCheck(`w${n}-must-${idx}`));
+  document.getElementById("row-w" + n).classList.toggle("done-row", allMust);
+}
+
+/* ── 總進度（只計必需項） ── */
+function refreshProgress() {
+  let total = 0, done = 0;
+  WEEKS.forEach(w => w.must.forEach((_, idx) => {
+    total++;
+    if (loadCheck(`w${w.n}-must-${idx}`)) done++;
+  }));
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById("progress-fill").style.width = pct + "%";
+  const cur = currentWeekIndex();
+  document.getElementById("progress-label").textContent =
+    `必需項完成度：${done} / ${total}（${pct}%）` + (cur >= 0 ? `・本週為 W${cur + 1}` : "");
+}
+</script>
+</body>
+</html>

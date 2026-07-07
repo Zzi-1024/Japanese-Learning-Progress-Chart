@@ -207,7 +207,7 @@
       <li><b>「至少必需」</b>是主線，沒完成時優先補完必需項，再往下一週推進；<b>「建議做到」</b>是把合格從「有機會」變「穩」的關鍵；<b>「做到超好」</b>是餘裕時的加分項，跳過不影響主線。</li>
       <li>單字量為估計值（N3 約 1,800 字、N2 約 2,500 字），實際以你的單字書分量換算，維持「每週固定比例」的節奏即可。</li>
       <li>聽力是明確弱項，從 N3 階段起改用<b>官方問題集音檔</b>為主，動畫與歌曲降為輔助。</li>
-      <li>勾選狀態會自動存在瀏覽器（localStorage），換電腦或清除瀏覽資料會歸零。</li>
+      <li>選狀態會自動同步到雲端，換裝置也會保留</li>
     </ul>
   </div>
 
@@ -343,12 +343,36 @@ function currentWeekIndex() {
   });
 })();
 
-/* ── localStorage ── */
+/* ── 勾選狀態:localStorage 離線快取 ＋ GAS 遠端同步 ── */
 const LS_PREFIX = "n2plan2026-";
+const API_URL = "https://script.google.com/macros/s/AKfycbzifEU5kREPFIT9kJLxMUAEgUkpD71f4C8OQ7k6BeNYDVFF9WL1nwww6lmx7NcPSg1gSw/exec";
+
 function loadCheck(id) { return localStorage.getItem(LS_PREFIX + id) === "1"; }
+
 function saveCheck(id, val) {
   try { localStorage.setItem(LS_PREFIX + id, val ? "1" : "0"); } catch (e) {}
+  fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },   // 避開 CORS preflight
+    body: JSON.stringify({ id: id, value: val ? "1" : "0" })
+  }).catch(() => {});
 }
+
+/* 頁面載入後從遠端拉全部狀態,覆蓋本機並更新畫面 */
+(function syncFromRemote() {
+  fetch(API_URL)
+    .then(r => r.json())
+    .then(data => {
+      Object.keys(data).forEach(id => {
+        try { localStorage.setItem(LS_PREFIX + id, data[id]); } catch (e) {}
+        const cb = document.getElementById(id);
+        if (cb) cb.checked = data[id] === "1";
+      });
+      WEEKS.forEach(w => refreshRow(w.n));
+      refreshProgress();
+    })
+    .catch(() => {});
+})();
 
 /* ── 建表 ── */
 (function buildPlan() {
